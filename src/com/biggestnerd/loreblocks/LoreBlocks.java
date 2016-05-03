@@ -1,5 +1,6 @@
 package com.biggestnerd.loreblocks;
 
+import org.bukkit.block.Block;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class LoreBlocks extends JavaPlugin {
