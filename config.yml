@@ -1,0 +1,6 @@
+sql:
+  dbname: minecraft
+  host: localhost
+  pass: root
+  port: 3306
+  user: root
