@@ -9,17 +9,22 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.PistonMoveReaction;
+import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockFromToEvent;
-import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityBreakDoorEvent;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.world.StructureGrowEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
@@ -88,8 +93,12 @@ public class BlockListener implements Listener {
 	public void onPistonExtend(BlockPistonExtendEvent event) {
 		for(Block block : event.getBlocks()) {
 			if(dao.hasLore(BlockUtils.getRealBlock(block))) {
-				event.setCancelled(true);
-				return;
+				Block fromBlock = block.getRelative(event.getDirection().getOppositeFace());
+				if(block.getPistonMoveReaction() == PistonMoveReaction.BREAK) {
+					handleBlockBreak(block);
+				} else {
+					dao.moveLoreBlock(fromBlock, block);
+				}
 			}
 		}
 	}
@@ -98,8 +107,12 @@ public class BlockListener implements Listener {
 	public void onPistonRetract(BlockPistonRetractEvent event) {
 		for(Block block : event.getBlocks()) {
 			if(dao.hasLore(BlockUtils.getRealBlock(block))) {
-				event.setCancelled(true);
-				return;
+				Block fromBlock = block.getRelative(event.getDirection().getOppositeFace());
+				if(block.getPistonMoveReaction() == PistonMoveReaction.BREAK) {
+					handleBlockBreak(block);
+				} else {
+					dao.moveLoreBlock(fromBlock, block);
+				}
 			}
 		}
 	}
@@ -113,20 +126,31 @@ public class BlockListener implements Listener {
 			handleBlockBreak(block);
 		}
 	}
-	
+
 	@EventHandler
 	public void onBlockFromTo(BlockFromToEvent event) {
-		Block block = BlockUtils.getRealBlock(event.getToBlock());
-		if(dao.hasLore(block)) {
-			event.setCancelled(true);
+		Block toBlock = BlockUtils.getRealBlock(event.getToBlock());
+		Block fromBlock = BlockUtils.getRealBlock(event.getBlock());
+		if(BlockUtils.isLiquid(fromBlock) && dao.hasLore(toBlock)) {
+			handleBlockBreak(toBlock);
 		}
 	}
 	
 	@EventHandler
-	public void onBlockPhysics(BlockPhysicsEvent event) {
-		Block block = BlockUtils.getRealBlock(event.getBlock());
-		if(block.getType().hasGravity() && dao.hasLore(block)) {
-			event.setCancelled(true);
+	public void onEntityChangeBlock(EntityChangeBlockEvent event) {
+		if(event.getEntityType() == EntityType.FALLING_BLOCK) {
+			if(dao.hasLore(event.getBlock())) {
+				dao.moveLoreBlock(event.getBlock(), event.getBlock().getRelative(BlockFace.DOWN));
+			}
+		}
+	}
+	
+	@EventHandler
+	public void onStructureGrow(StructureGrowEvent event) {
+		for(BlockState block : event.getBlocks()) {
+			if(dao.hasLore(block.getBlock())) {
+				dao.removeLoreBlock(block.getBlock());
+			}
 		}
 	}
 	

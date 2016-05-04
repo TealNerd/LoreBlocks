@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -65,6 +66,7 @@ public class LoreBlockDAO {
 	}
 	
 	public boolean addLoreBlock(Block block, String lore) {
+		if(block.getType() == Material.AIR || BlockUtils.isLiquid(block))return false; //no lore on air or liquids
 		try {
 			PreparedStatement ps = db.prepareStatement("INSERT INTO loreblocks (pos,lore) VALUES (?,?)");
 			ps.setString(1, block.getLocation().toString());
@@ -87,7 +89,9 @@ public class LoreBlockDAO {
 			ps.setString(1, block.getLocation().toString());
 			ResultSet result = ps.executeQuery();
 			if(result.next()) {
-				return result.getString("lore");
+				String lore = result.getString("lore");
+				block.setMetadata("lore", new FixedMetadataValue(LoreBlocks.getInstance(), lore));
+				return lore;
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -104,6 +108,12 @@ public class LoreBlockDAO {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
+	}
+	
+	public void moveLoreBlock(Block block, Block toBlock) {
+		String lore = getLoreForBlock(block);
+		removeLoreBlock(block);
+		addLoreBlock(toBlock, lore);
 	}
 
 	public boolean hasLore(Block block) {

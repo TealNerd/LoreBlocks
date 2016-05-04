@@ -2,12 +2,14 @@ package com.biggestnerd.loreblocks;
 
 import org.bukkit.block.Block;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class LoreBlocks extends JavaPlugin {
 
 	private static LoreBlocks instance;
 	
 	private BlockListener listener;
+	private DatabaseUpdateThread dbThread;
 	
 	@Override
 	public void onEnable() {
@@ -16,9 +18,18 @@ public class LoreBlocks extends JavaPlugin {
 		reloadConfig();
 		listener = new BlockListener();
 		getServer().getPluginManager().registerEvents(listener, this);
+		dbThread = new DatabaseUpdateThread();
+		dbThread.runTaskTimer(this, 1l, 1l);
 	}
 	
-  /**
+	class DatabaseUpdateThread extends BukkitRunnable {
+		@Override
+		public void run() {
+			
+		}
+	}
+	
+	/**
 	 * @param block the block to check for lore
 	 * @return true if the block has lore
 	 */
@@ -43,7 +54,7 @@ public class LoreBlocks extends JavaPlugin {
 	public static String getLore(Block block) {
 		return LoreBlockDAO.getInstance().getLoreForBlock(block);
 	}
-  
+	
 	public static LoreBlocks getInstance() {
 		return instance;
 	}

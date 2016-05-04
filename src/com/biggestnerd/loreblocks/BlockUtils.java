@@ -68,4 +68,10 @@ public class BlockUtils {
 		}
 		return b;
 	}
+	
+	static final ArrayList<Material> liquids = new ArrayList<Material>(Arrays.asList(
+			Material.WATER, Material.STATIONARY_WATER, Material.LAVA, Material.STATIONARY_LAVA));
+	public static boolean isLiquid(Block block) {
+		return liquids.contains(block.getType());
+	}
 }
