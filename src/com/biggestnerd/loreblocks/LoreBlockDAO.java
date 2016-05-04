@@ -80,7 +80,7 @@ public class LoreBlockDAO {
 	
 	public String getLoreForBlock(Block block) {
 		if(block.hasMetadata("lore")) {
-			return block.getMetadata("lore").toString();
+			return block.getMetadata("lore").get(0).asString();
 		}
 		try {
 			PreparedStatement ps = db.prepareStatement("SELECT * FROM loreblocks WHERE pos=?");
