@@ -52,7 +52,7 @@ public class LoreBlockDAO {
 		}
 	}
 	
-	private static final Pattern locationPattern = Pattern.compile("^Location{world=(.*),x=([-]?[0-9]+\\.?[0-9]*?),y=([-]?[0-9]+\\.?[0-9]*?),z=([-]?[0-9]+\\.?[0-9]*?),.*}$");
+	private static final Pattern locationPattern = Pattern.compile("^Location\\{world=(.*),x=([-]?[0-9]+\\.?[0-9]*?),y=([-]?[0-9]+\\.?[0-9]*?),z=([-]?[0-9]+\\.?[0-9]*?),.*\\}$");
 	private Location locationFromString(String locString) {
 		Matcher locMatcher = locationPattern.matcher(locString);
 		if(locMatcher.find()) {
